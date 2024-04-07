@@ -1,9 +1,9 @@
-mod kraken;
+mod connector;
 
-use kraken::health::get_server_time;
-use std::collections::HashMap;
+use connector::kraken::health::get_server_time;
 
 #[tokio::main]
 async fn main() {
-    get_server_time().await;
+    let server_time = get_server_time().await.unwrap();
+    println!("{}", server_time.unixtime);
 }

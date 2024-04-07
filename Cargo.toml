@@ -6,4 +6,6 @@ edition = "2021"
 [dependencies]
 dotenvy_macro = "0.15.7"
 reqwest = { version = "0.12.2", features = ["json"] }
+serde = { version = "1.0.197", features = ["derive"] }
+thiserror = "^1.0.58"
 tokio = { version = "1.37.0", features = ["macros", "rt", "rt-multi-thread"] }
