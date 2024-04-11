@@ -4,8 +4,12 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-dotenvy_macro = "0.15.7"
-reqwest = { version = "0.12.2", features = ["json"] }
-serde = { version = "1.0.197", features = ["derive"] }
+base64 = "0.22.0"
+dotenvy_macro = "^0.15.7"
+reqwest = { version = "^0.12.2", features = ["json"] }
+ring = "0.17.8"
+serde = { version = "^1.0.197", features = ["derive"] }
+serde_with = "^3.7.0"
+sha2 = "0.10.8"
 thiserror = "^1.0.58"
-tokio = { version = "1.37.0", features = ["macros", "rt", "rt-multi-thread"] }
+tokio = { version = "^1.37.0", features = ["macros", "rt", "rt-multi-thread"] }

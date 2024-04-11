@@ -1,5 +1,5 @@
 use super::super::error::ConnectorError;
-use super::settings::KRAKEN_API_URL;
+use super::settings::KRAKEN_API_BASE_URL;
 use reqwest::get;
 use serde::Deserialize;
 
@@ -16,7 +16,7 @@ pub struct ServerTime {
 }
 
 pub async fn get_server_time() -> Result<ServerTime, ConnectorError> {
-    let url = format!("{KRAKEN_API_URL}/public/Time");
+    let url = format!("{KRAKEN_API_BASE_URL}/0/public/Time");
     let server_time = get(url).await?.json::<ServerTimeResponse>().await?.result;
     Ok(server_time)
 }
