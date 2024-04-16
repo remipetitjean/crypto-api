@@ -29,7 +29,11 @@ async fn main() {
         ("volume", "1.25".to_string()),
     ];
     let url = Url::parse_with_params(&url_str, &params).expect("could not parce URL");
+    let sig = get_api_sign(url, nonce, private_key);
+    assert_eq!(
+        sig,
+        "4/dpxb3iT4tp/ZCVEwSnEsLxx0bqyhLpdfOpc6fn7OR8+UClSV5n9E6aSS8MPtnRfp32bAb0nmbRn6H8ndwLUQ==",
+    );
 
-    let api_sign = get_api_sign(url, private_key, nonce);
-    println!("{}", api_sign);
+    //println!("{}", api_sign);
 }

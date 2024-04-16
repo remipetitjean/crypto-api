@@ -1,2 +1,2 @@
-pub mod kraken;
 pub mod error;
+pub mod kraken;

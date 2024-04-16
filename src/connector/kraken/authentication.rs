@@ -14,48 +14,53 @@ use std::time::{SystemTime, UNIX_EPOCH};
 pub fn get_nonce() -> u128 {
     SystemTime::now()
         .duration_since(UNIX_EPOCH)
-        .expect("it can't fail")
+        .unwrap()
         .as_millis()
 }
 
-pub fn get_api_sign(url: Url, secret: String, nonce: u128) -> String {
-    // encode data
+pub fn get_api_sign(url: Url, nonce: u128, secret: String) -> String {
     let query = match url.query() {
         Some(query) => query,
         None => "",
     };
     let str_to_encode = format!("{nonce}{query}");
-    let encoded = str_to_encode.as_bytes();
-    let digest = sha2::Sha512::digest(encoded);
-    let digest_str = str::from_utf8(&digest);
-    println!("digest={:?}", digest_str);
-    //encoded=b'1616492376594nonce=1616492376594&ordertype=limit&pair=XBTUSD&price=37500&type=buy&volume=1.25'
+    let encoded = str_to_encode.into_bytes();
 
     let path = url.path();
     let mut message = path.as_bytes().to_vec();
-    message.extend(digest);
-    let message_str = str::from_utf8(&message);
-    println!("message={:?}", message_str);
+    message.extend(sha2::Sha256::digest(encoded));
 
-    let base64_secret = BASE64_STANDARD.decode(secret).unwrap();
-    let key = hmac::Key::new(hmac::HMAC_SHA512, &base64_secret);
+    let key = hmac::Key::new(hmac::HMAC_SHA512, &base64::decode(secret).unwrap());
     let sig = hmac::sign(&key, &message);
-
-    BASE64_STANDARD.encode(&sig)
-    //message=b'/0/private/AddOrder#\xa1\xc1\xb3Lj\x11\xd6A\xaf\x0f$hH\x96\xcb\x90\xf6o\xb9\x91\x12\\\x83\xdc5{\xdc=\xc1F\xf1'
-    //API-Sign: 4/dpxb3iT4tp/ZCVEwSnEsLxx0bqyhLpdfOpc6fn7OR8+UClSV5n9E6aSS8MPtnRfp32bAb0nmbRn6H8ndwLUQ==
+    base64::encode(&sig)
 }
 
 #[cfg(test)]
 mod tests {
+    use super::super::settings::KRAKEN_API_BASE_URL;
+    use super::*;
+
     #[test]
     fn sample_api_sign() {
-        let private_key = "kQH5HW/8p1uGOVjbgWA7FunAmGO8lsSUXNsu3eow76sz84Q18fWxnyRzBHCd3pd5nE9qa99HAZtuZuj6F1huXg==";
+        let private_key =
+        "kQH5HW/8p1uGOVjbgWA7FunAmGO8lsSUXNsu3eow76sz84Q18fWxnyRzBHCd3pd5nE9qa99HAZtuZuj6F1huXg=="
+            .to_string();
         let nonce: u128 = 1616492376594;
-        let uri_path = "/0/private/AddOrder";
-        //let url = Url::parse(&url_str).expect("could not parce URL");
-
-        let result = 2 + 2;
-        assert_eq!(result, 4);
+        let api_uri = "/0/private/AddOrder";
+        let url_str = format!("{KRAKEN_API_BASE_URL}{api_uri}");
+        let params = [
+            ("nonce", nonce.to_string()),
+            ("ordertype", "limit".to_string()),
+            ("pair", "XBTUSD".to_string()),
+            ("price", "37500".to_string()),
+            ("type", "buy".to_string()),
+            ("volume", "1.25".to_string()),
+        ];
+        let url = Url::parse_with_params(&url_str, &params).expect("could not parce URL");
+        let sig_2 = get_api_sign(url, nonce, private_key);
+        assert_eq!(
+            sig_2,
+            "4/dpxb3iT4tp/ZCVEwSnEsLxx0bqyhLpdfOpc6fn7OR8+UClSV5n9E6aSS8MPtnRfp32bAb0nmbRn6H8ndwLUQ==",
+        );
     }
 }
