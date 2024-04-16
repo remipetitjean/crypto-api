@@ -1,11 +1,7 @@
-use super::settings::KRAKEN_API_SECRET;
 use base64::prelude::*;
 use reqwest::Url;
 use ring::hmac;
-use serde::Deserialize;
-use sha2::{Digest, Sha512};
-use std::collections::HashMap;
-use std::str;
+use sha2::Digest;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 /// kraken expects an increasing integer and suggests UNIX timestamp
@@ -30,9 +26,10 @@ pub fn get_api_sign(url: Url, nonce: u128, secret: String) -> String {
     let mut message = path.as_bytes().to_vec();
     message.extend(sha2::Sha256::digest(encoded));
 
-    let key = hmac::Key::new(hmac::HMAC_SHA512, &base64::decode(secret).unwrap());
+    let base64_secret = BASE64_STANDARD.decode(secret).unwrap();
+    let key = hmac::Key::new(hmac::HMAC_SHA512, &base64_secret);
     let sig = hmac::sign(&key, &message);
-    base64::encode(&sig)
+    BASE64_STANDARD.encode(&sig)
 }
 
 #[cfg(test)]
