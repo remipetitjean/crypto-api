@@ -23,7 +23,6 @@ where
 {
     let query = serde_urlencoded::to_string(data).unwrap();
     let str_to_encode = format!("{nonce}{query}");
-    println!("str_to_encode = {:?}", str_to_encode);
     let encoded = str_to_encode.into_bytes();
 
     let mut message = path.as_bytes().to_vec();

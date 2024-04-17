@@ -25,31 +25,6 @@ async fn main() {
     //let balance = get_account_balance().await.unwrap();
     //println!("{:?}", balance);
 
-    let private_key =
-        "kQH5HW/8p1uGOVjbgWA7FunAmGO8lsSUXNsu3eow76sz84Q18fWxnyRzBHCd3pd5nE9qa99HAZtuZuj6F1huXg==";
-    let nonce: u128 = 1616492376594;
-    let path = "/0/private/AddOrder";
-
-    let add_order_data = AddOrderData {
-        nonce,
-        ordertype: "limit".to_string(),
-        pair: "XBTUSD".to_string(),
-        price: 37500,
-        r#type: "buy".to_string(),
-        volume: 1.25,
-    };
-    let sig = get_api_sign(
-        path.to_string(),
-        nonce,
-        add_order_data,
-        private_key.to_string(),
-    );
-    assert_eq!(
-        sig,
-        "4/dpxb3iT4tp/ZCVEwSnEsLxx0bqyhLpdfOpc6fn7OR8+UClSV5n9E6aSS8MPtnRfp32bAb0nmbRn6H8ndwLUQ==",
-    );
-    println!("siggy = {}", sig);
-
     let account_balance = get_account_balance().await;
     println!("account balance={:?}", account_balance);
 
