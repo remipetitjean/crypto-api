@@ -1,10 +1,7 @@
 mod connector;
 
-use crate::connector::kraken::settings::KRAKEN_API_BASE_URL;
 use connector::kraken::account::get_account_balance;
-use connector::kraken::authentication::get_api_sign;
 use connector::kraken::health::get_server_time;
-use reqwest::Url;
 use serde::Serialize;
 
 #[derive(Serialize)]
