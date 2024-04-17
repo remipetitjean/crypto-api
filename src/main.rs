@@ -1,6 +1,6 @@
 mod connector;
 
-use connector::kraken::account::get_account_balance;
+use connector::kraken::account::account_balance::get_account_balance;
 
 #[tokio::main]
 async fn main() {

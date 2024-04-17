@@ -1,6 +1,8 @@
-use super::super::error::ConnectorError;
-use super::authentication::{get_api_sign, get_nonce, API_KEY_HEADER, API_SIGN_HEADER};
-use super::settings::{KRAKEN_API_BASE_URL, KRAKEN_API_KEY, KRAKEN_API_SECRET};
+use crate::connector::error::ConnectorError;
+use crate::connector::kraken::authentication::{
+    get_api_sign, get_nonce, API_KEY_HEADER, API_SIGN_HEADER,
+};
+use crate::connector::kraken::settings::{KRAKEN_API_BASE_URL, KRAKEN_API_KEY, KRAKEN_API_SECRET};
 use reqwest::Url;
 use rust_decimal::prelude::*;
 use serde::{Deserialize, Serialize};
