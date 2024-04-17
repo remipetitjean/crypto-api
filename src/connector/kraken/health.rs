@@ -5,7 +5,10 @@ use serde::Deserialize;
 
 #[derive(Deserialize)]
 struct ServerTimeResponse {
+    #[allow(dead_code)]
     error: Vec<String>,
+
+    #[allow(dead_code)]
     result: ServerTime,
 }
 
@@ -15,6 +18,7 @@ pub struct ServerTime {
     pub rfc1123: String,
 }
 
+#[allow(dead_code)]
 pub async fn get_server_time() -> Result<ServerTime, ConnectorError> {
     let url = format!("{KRAKEN_API_BASE_URL}/0/public/Time");
     let server_time = get(url).await?.json::<ServerTimeResponse>().await?.result;
