@@ -21,6 +21,9 @@ pub async fn get_account_balance() -> Result<AccountBalanceResponse, ConnectorEr
     let url_str = format!("{KRAKEN_API_BASE_URL}/0/private/Balance");
     let url = Url::parse_with_params(&url_str, &params).unwrap();
     let sig = get_api_sign(url.to_owned(), nonce, KRAKEN_API_SECRET.to_string());
+    println!("api_key = {}", KRAKEN_API_KEY);
+    println!("sig = {}", sig);
+    println!("url = {}", url);
 
     let client = reqwest::Client::new();
     let res = client
