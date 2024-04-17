@@ -157,6 +157,7 @@ dependencies = [
  "reqwest",
  "ring",
  "serde",
+ "serde_urlencoded",
  "serde_with",
  "sha2",
  "thiserror",

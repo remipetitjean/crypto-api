@@ -1,6 +1,6 @@
 use base64::prelude::*;
-use reqwest::Url;
 use ring::hmac;
+use serde::Serialize;
 use sha2::Digest;
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -17,15 +17,15 @@ pub fn get_nonce() -> u128 {
         .as_millis()
 }
 
-pub fn get_api_sign(url: Url, nonce: u128, secret: String) -> String {
-    let query = match url.query() {
-        Some(query) => query,
-        None => "",
-    };
+pub fn get_api_sign<T>(path: String, nonce: u128, data: T, secret: String) -> String
+where
+    T: Serialize,
+{
+    let query = serde_urlencoded::to_string(data).unwrap();
     let str_to_encode = format!("{nonce}{query}");
+    println!("str_to_encode = {:?}", str_to_encode);
     let encoded = str_to_encode.into_bytes();
 
-    let path = url.path();
     let mut message = path.as_bytes().to_vec();
     message.extend(sha2::Sha256::digest(encoded));
 
@@ -37,27 +37,34 @@ pub fn get_api_sign(url: Url, nonce: u128, secret: String) -> String {
 
 #[cfg(test)]
 mod tests {
-    use super::super::settings::KRAKEN_API_BASE_URL;
     use super::*;
 
+    #[derive(Serialize)]
+    struct AddOrderData {
+        nonce: u128,
+        ordertype: String,
+        pair: String,
+        price: u32,
+        r#type: String,
+        volume: f32,
+    }
+
     #[test]
-    fn sample_api_sign() {
+    fn api_sign() {
         let private_key =
         "kQH5HW/8p1uGOVjbgWA7FunAmGO8lsSUXNsu3eow76sz84Q18fWxnyRzBHCd3pd5nE9qa99HAZtuZuj6F1huXg=="
             .to_string();
-        let api_uri = "/0/private/AddOrder";
-        let url_str = format!("{KRAKEN_API_BASE_URL}{api_uri}");
         let nonce: u128 = 1616492376594;
-        let params = [
-            ("nonce", nonce.to_string()),
-            ("ordertype", "limit".to_string()),
-            ("pair", "XBTUSD".to_string()),
-            ("price", "37500".to_string()),
-            ("type", "buy".to_string()),
-            ("volume", "1.25".to_string()),
-        ];
-        let url = Url::parse_with_params(&url_str, &params).unwrap();
-        let sig = get_api_sign(url, nonce, private_key);
+        let path = "/0/private/AddOrder".to_string();
+        let add_order_data = AddOrderData {
+            nonce,
+            ordertype: "limit".to_string(),
+            pair: "XBTUSD".to_string(),
+            price: 37500,
+            r#type: "buy".to_string(),
+            volume: 1.25,
+        };
+        let sig = get_api_sign(path, nonce, add_order_data, private_key);
         assert_eq!(
             sig,
             "4/dpxb3iT4tp/ZCVEwSnEsLxx0bqyhLpdfOpc6fn7OR8+UClSV5n9E6aSS8MPtnRfp32bAb0nmbRn6H8ndwLUQ==",

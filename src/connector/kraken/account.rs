@@ -2,7 +2,7 @@ use super::super::error::ConnectorError;
 use super::authentication::{get_api_sign, get_nonce, API_KEY_HEADER, API_SIGN_HEADER};
 use super::settings::{KRAKEN_API_BASE_URL, KRAKEN_API_KEY, KRAKEN_API_SECRET};
 use reqwest::Url;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::str;
 
@@ -14,14 +14,21 @@ pub struct AccountBalanceResponse {
     result: Option<HashMap<String, f64>>,
 }
 
+#[derive(Serialize)]
+struct EmptyData {
+    nonce: u128,
+}
+
 pub async fn get_account_balance() -> Result<AccountBalanceResponse, ConnectorError> {
     // auth
     let nonce = get_nonce();
-    let params = [("nonce", nonce.to_string())];
-    let url_str = format!("{KRAKEN_API_BASE_URL}/0/private/Balance");
-    let url = Url::parse_with_params(&url_str, &params).unwrap();
-    let sig = get_api_sign(url.to_owned(), nonce, KRAKEN_API_SECRET.to_string());
+    let data = EmptyData { nonce };
+    let path = "/0/private/Balance";
+    let sig = get_api_sign(path.to_string(), nonce, data, KRAKEN_API_SECRET.to_string());
     println!("api_key = {}", KRAKEN_API_KEY);
+
+    let url_str = format!("{KRAKEN_API_BASE_URL}{path}");
+    let url = Url::parse(&url_str).unwrap();
     println!("sig = {}", sig);
     println!("url = {}", url);
 
