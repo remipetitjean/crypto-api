@@ -10,8 +10,7 @@ async fn main() {
     //let balance = get_account_balance().await.unwrap();
     //println!("{:?}", balance);
 
-    let account_balance = get_account_balance().await;
-    println!("account balance={:?}", account_balance);
+    let _account_balance = get_account_balance().await;
 
     //println!("{}", api_sign);
 }

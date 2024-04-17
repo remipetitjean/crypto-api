@@ -11,9 +11,12 @@ use std::str;
 
 // https://support.kraken.com/hc/en-us/articles/360001491786-API-error-messages
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize)]
 pub struct AccountBalanceResponse {
+    #[allow(dead_code)]
     error: Vec<String>,
+
+    #[allow(dead_code)]
     result: Option<HashMap<String, Decimal>>,
 }
 
@@ -25,7 +28,6 @@ struct EmptyData {
 pub async fn get_account_balance() -> Result<AccountBalanceResponse, ConnectorError> {
     // auth
     let nonce = get_nonce();
-    println!("{nonce}");
     let data = EmptyData { nonce };
     let path = "/0/private/Balance";
     let sig = get_api_sign(
