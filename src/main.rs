@@ -1,6 +1,9 @@
 mod connector;
 
 use connector::kraken::account::account_balance::get_account_balance;
+use connector::kraken::account::extended_balance::get_extended_balance;
+use connector::kraken::account::open_orders::get_open_orders;
+use connector::kraken::account::trade_balance::get_trade_balance;
 
 #[tokio::main]
 async fn main() {
@@ -10,7 +13,15 @@ async fn main() {
     //let balance = get_account_balance().await.unwrap();
     //println!("{:?}", balance);
 
-    let _account_balance = get_account_balance().await;
+    let account_balance = get_account_balance().await.unwrap();
+    println!("{:?}\n\n", account_balance);
 
-    //println!("{}", api_sign);
+    let extended_balance = get_extended_balance().await.unwrap();
+    println!("{:?}\n\n", extended_balance);
+
+    let trade_balance = get_trade_balance().await.unwrap();
+    println!("{:?}\n\n", trade_balance);
+
+    let open_orders = get_open_orders(true, None).await.unwrap();
+    println!("{:?}\n\n", open_orders);
 }

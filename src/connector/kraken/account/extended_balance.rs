@@ -10,26 +10,35 @@ use std::collections::HashMap;
 use std::str;
 
 #[derive(Debug, Deserialize)]
-pub struct AccountBalanceResponse {
+pub struct ExtendedBalanceResponse {
     #[allow(dead_code)]
     error: Vec<String>,
 
     #[allow(dead_code)]
-    result: Option<AccountBalance>,
+    result: Option<ExtendedBalance>,
 }
 
-pub type AccountBalance = HashMap<String, Decimal>;
+pub type ExtendedBalance = HashMap<String, Balance>;
+
+#[derive(Debug, Deserialize)]
+pub struct Balance {
+    #[allow(dead_code)]
+    balance: Decimal,
+
+    #[allow(dead_code)]
+    hold_trade: Decimal,
+}
 
 #[derive(Serialize)]
-struct AccountBalanceRequest {
+struct ExtendedBalanceRequest {
     nonce: u128,
 }
 
-pub async fn get_account_balance() -> Result<AccountBalance, ConnectorError> {
+pub async fn get_extended_balance() -> Result<ExtendedBalance, ConnectorError> {
     // auth
     let nonce = get_nonce();
-    let data = AccountBalanceRequest { nonce };
-    let path = "/0/private/Balance";
+    let data = ExtendedBalanceRequest { nonce };
+    let path = "/0/private/BalanceEx";
     let sig = get_api_sign(
         path.to_string(),
         nonce,
@@ -49,7 +58,7 @@ pub async fn get_account_balance() -> Result<AccountBalance, ConnectorError> {
         .send()
         .await?;
 
-    let result = res.json::<AccountBalanceResponse>().await?;
+    let result = res.json::<ExtendedBalanceResponse>().await?;
     match result.result {
         Some(result) => Ok(result),
         None => Err(ConnectorError::DataError),
