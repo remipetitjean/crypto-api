@@ -10,7 +10,7 @@ use std::collections::HashMap;
 use std::str;
 
 #[derive(Debug, Deserialize)]
-pub struct OpenOrdersResponse {
+pub struct ClosedOrdersResponse {
     #[allow(dead_code)]
     error: Vec<String>,
 
@@ -22,13 +22,13 @@ pub type TradeId = String;
 
 #[derive(Debug, Deserialize)]
 struct TypedOrders {
-    open: Option<OrderMap>,
+    closed: Option<OrderMap>,
 }
 
-pub type OrderMap = HashMap<TradeId, OpenOrder>;
+pub type OrderMap = HashMap<TradeId, ClosedOrder>;
 
 #[derive(Debug, Deserialize)]
-pub struct OpenOrder {
+pub struct ClosedOrder {
     #[allow(dead_code)]
     refid: Option<String>,
     #[allow(dead_code)]
@@ -65,6 +65,10 @@ pub struct OpenOrder {
     oflags: String,
     #[allow(dead_code)]
     trades: Option<Vec<TradeId>>,
+    #[allow(dead_code)]
+    closetm: Decimal,
+    #[allow(dead_code)]
+    reason: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -88,24 +92,39 @@ pub struct OrderDescr {
 }
 
 #[derive(Serialize)]
-struct OpenOrdersRequest {
+struct ClosedOrdersRequest {
     nonce: u128,
     trades: bool,
     userref: Option<i32>,
+    start: Option<u128>,
+    end: Option<u128>,
+    ofs: Option<i32>,
+    closetime: Option<String>,
+    consolidate_taker: Option<bool>,
 }
 
-pub async fn get_open_orders(
+pub async fn get_closed_orders(
     trades: bool,
     userref: Option<i32>,
+    start: Option<u128>,
+    end: Option<u128>,
+    ofs: Option<i32>,
+    closetime: Option<String>,
+    consolidate_taker: Option<bool>,
 ) -> Result<OrderMap, ConnectorError> {
     // auth
     let nonce = get_nonce();
-    let data = OpenOrdersRequest {
+    let data = ClosedOrdersRequest {
         nonce,
         trades,
         userref,
+        start,
+        end,
+        ofs,
+        closetime,
+        consolidate_taker,
     };
-    let path = "/0/private/OpenOrders";
+    let path = "/0/private/ClosedOrders";
     let sig = get_api_sign(
         path.to_string(),
         nonce,
@@ -129,9 +148,9 @@ pub async fn get_open_orders(
     // println!("result = {}", result_str);
     // Err(ConnectorError::DataError)
 
-    let result = res.json::<OpenOrdersResponse>().await?;
+    let result = res.json::<ClosedOrdersResponse>().await?;
     match result.result {
-        Some(result) => match result.open {
+        Some(result) => match result.closed {
             Some(opens) => Ok(opens),
             None => Ok(HashMap::new()),
         },

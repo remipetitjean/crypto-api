@@ -1,6 +1,7 @@
 mod connector;
 
 use connector::kraken::account::account_balance::get_account_balance;
+use connector::kraken::account::closed_orders::get_closed_orders;
 use connector::kraken::account::extended_balance::get_extended_balance;
 use connector::kraken::account::open_orders::get_open_orders;
 use connector::kraken::account::trade_balance::get_trade_balance;
@@ -24,4 +25,9 @@ async fn main() {
 
     let open_orders = get_open_orders(true, None).await.unwrap();
     println!("{:?}\n\n", open_orders);
+
+    let closed_orders = get_closed_orders(true, None, None, None, None, None, None)
+        .await
+        .unwrap();
+    println!("{:?}\n\n", closed_orders);
 }
