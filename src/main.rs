@@ -1,6 +1,8 @@
 mod connector;
-
+use rust_decimal::Decimal;
 use connector::kraken::spot::market_data::order_book::get_median_price;
+use connector::kraken::spot::add_order;
+use connector::kraken::account::account_balance::get_account_balance;
 //use tokio::time::{sleep, Duration};
 
 #[tokio::main]
@@ -44,6 +46,20 @@ async fn main() {
     // println!("{:?}\n\n", query_orders);
 
     //let price = recent_book_df.get_column("price").median();
-    let median_price = get_median_price("SOLGBP".to_string(), Some(500), 120.0).await;
-    println!("median price = {:?}", median_price);
+    
+    let account_balance = get_account_balance().await.unwrap();
+    println!("account_balance = {:?}", account_balance);
+    let gbp = account_balance.get("ZGBP").unwrap_or(&Decimal::ZERO);
+    let sol = account_balance.get("SOL").unwrap_or(&Decimal::ZERO);
+    println!("gbp = {}, sol = {}", gbp, sol);
+    
+    
+    let pair = "SOLGBP".to_string();
+    let order_type = "limit".to_string();
+    let buy_type = "buy".to_string();
+    let sell_type = "sell".to_string();
+
+    let price = get_median_price(pair, Some(500), 120.0).await;
+    //let order = add_order(pair, order_type, buy_type,
+
 }
