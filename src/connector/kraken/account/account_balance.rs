@@ -52,6 +52,6 @@ pub async fn get_account_balance() -> Result<AccountBalance, ConnectorError> {
     let result = res.json::<AccountBalanceResponse>().await?;
     match result.result {
         Some(result) => Ok(result),
-        None => Err(ConnectorError::DataError),
+        None => Err(ConnectorError::DataError(result.error)),
     }
 }

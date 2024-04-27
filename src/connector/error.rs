@@ -9,5 +9,5 @@ pub enum ConnectorError {
     RequestError(#[from] ReqwestError),
 
     #[error("data error")]
-    DataError,
+    DataError(Vec<String>),
 }

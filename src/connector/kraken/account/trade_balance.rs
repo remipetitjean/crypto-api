@@ -52,6 +52,6 @@ pub async fn get_trade_balance() -> Result<TradeBalance, ConnectorError> {
     let result = res.json::<TradeBalanceResponse>().await?;
     match result.result {
         Some(result) => Ok(result),
-        None => Err(ConnectorError::DataError),
+        None => Err(ConnectorError::DataError(result.error)),
     }
 }

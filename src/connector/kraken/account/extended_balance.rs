@@ -61,6 +61,6 @@ pub async fn get_extended_balance() -> Result<ExtendedBalance, ConnectorError> {
     let result = res.json::<ExtendedBalanceResponse>().await?;
     match result.result {
         Some(result) => Ok(result),
-        None => Err(ConnectorError::DataError),
+        None => Err(ConnectorError::DataError(result.error)),
     }
 }

@@ -135,6 +135,6 @@ pub async fn get_open_orders(
             Some(opens) => Ok(opens),
             None => Ok(HashMap::new()),
         },
-        None => Err(ConnectorError::DataError),
+        None => Err(ConnectorError::DataError(result.error)),
     }
 }

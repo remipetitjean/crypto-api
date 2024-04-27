@@ -135,6 +135,6 @@ pub async fn get_query_orders(
     let result = res.json::<QueryOrdersResponse>().await?;
     match result.result {
         Some(result) => Ok(result),
-        None => Err(ConnectorError::DataError),
+        None => Err(ConnectorError::DataError(result.error)),
     }
 }
