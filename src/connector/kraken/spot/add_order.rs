@@ -44,7 +44,7 @@ pub struct AddOrdersResponse {
 pub type TradeId = String;
 
 #[derive(Debug, Deserialize)]
-struct AddedOrder {
+pub struct AddedOrder {
     descr: OrderDescr,
     txid: Vec<TradeId>,
 }
@@ -98,7 +98,7 @@ pub async fn add_order(
         deadline,
         validate,
     };
-    let path = "/0/private/AddOrders";
+    let path = "/0/private/AddOrder";
     let sig = get_api_sign(
         path.to_string(),
         nonce,
