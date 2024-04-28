@@ -59,12 +59,13 @@ pub async fn get_order_book(
     }
 }
 
-pub async fn get_median_price(pair: String, count: Option<i16>, window: f64) -> f64 {
+pub async fn get_book_df(pair: String, count: Option<i16>, window: f64) -> DataFrame {
     let order_book = get_order_book(pair, count).await.unwrap();
 
     let bids = order_book.bids;
     let asks = order_book.asks;
     let size = bids.len() + asks.len();
+    let mut bid_asks: Vec<String> = Vec::with_capacity(size);
     let mut prices: Vec<f64> = Vec::with_capacity(size);
     let mut volumes: Vec<f64> = Vec::with_capacity(size);
     let mut timestamps: Vec<f64> = Vec::with_capacity(size);
@@ -73,28 +74,46 @@ pub async fn get_median_price(pair: String, count: Option<i16>, window: f64) -> 
         prices.push(price.to_string().parse::<f64>().unwrap());
         volumes.push(volume.to_string().parse::<f64>().unwrap());
         timestamps.push(timestamp);
+        bid_asks.push("ask".to_string());
     }
 
     for (price, volume, timestamp) in bids {
         prices.push(price.to_string().parse::<f64>().unwrap());
-        volumes.push(-volume.to_string().parse::<f64>().unwrap());
+        volumes.push(volume.to_string().parse::<f64>().unwrap());
         timestamps.push(timestamp);
+        bid_asks.push("bid".to_string());
     }
 
     let book_df = df!(
         "price" => prices,
         "volume" => volumes,
         "timestamp" => timestamps,
+        "bid_ask" => bid_asks,
     )
     .unwrap();
 
     let now = SystemTime::now();
     let since_the_epoch = now.duration_since(UNIX_EPOCH).unwrap().as_secs_f64();
-    let recent_book_df = book_df
+    book_df
         .lazy()
         .filter(col("timestamp").gt(lit(since_the_epoch - window)))
         .collect()
-        .unwrap();
-
-    recent_book_df["price"].median().unwrap()
+        .unwrap()
 }
+
+pub async fn get_median_price(pair: String, count: Option<i16>, window: f64) -> f64 {
+    let book_df = get_book_df(pair, count, window).await;
+    book_df["price"].median().unwrap()
+}
+
+pub async fn get_bid_max_price(pair: String, count: Option<i16>, window: f64) -> f64 {
+    let book_df = get_book_df(pair, count, window).await;
+    let bid_df = book_df
+        .lazy()
+        .filter(col("bid_ask").eq(lit("bid")))
+        .collect()
+        .unwrap();
+    println!("bid_max_price = {:?}", bid_df);
+    1.1
+}
+
