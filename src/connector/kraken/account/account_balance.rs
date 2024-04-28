@@ -43,15 +43,19 @@ pub async fn get_account_balance() -> Result<AccountBalance, ConnectorError> {
     let client = reqwest::Client::new();
     let res = client
         .post(url)
-        .header(API_KEY_HEADER, KRAKEN_API_KEY)
+        //.header(API_KEY_HEADER, KRAKEN_API_KEY)
         .header(API_SIGN_HEADER, sig)
         .form(&data)
         .send()
         .await?;
 
-    let result = res.json::<AccountBalanceResponse>().await?;
-    match result.result {
-        Some(result) => Ok(result),
-        None => Err(ConnectorError::DataError(result.error)),
-    }
+    let text = res.text().await;
+    println!("account balance = {:?}", text);
+    Err(ConnectorError::DataError(vec!["aaa".to_string()]))
+
+    // let result = res.json::<AccountBalanceResponse>().await?;
+    // match result.result {
+    //     Some(result) => Ok(result),
+    //     None => Err(ConnectorError::DataError(result.error)),
+    // }
 }

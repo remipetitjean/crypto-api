@@ -1,15 +1,16 @@
 mod connector;
 use connector::kraken::account::account_balance::get_account_balance;
 use connector::kraken::spot::add_order::add_order;
-use connector::kraken::spot::market_data::order_book::{get_median_price, get_bid_max_price};
+use connector::kraken::spot::market_data::order_book::{
+    get_bid_max_price, get_book_df, get_median_price,
+};
 use rust_decimal::Decimal;
 //use tokio::time::{sleep, Duration};
 
 async fn add_limit_order(pair: String, balance: f64, r#type: String) {
-
     let order_type = "limit".to_string();
 
-    let price = get_median_price(pair.to_owned(), Some(500), 120.0)
+    let price = get_median_price(pair.to_owned(), Some(120.0))
         .await
         .to_string()
         .parse::<f64>()
@@ -52,30 +53,30 @@ async fn add_limit_order(pair: String, balance: f64, r#type: String) {
 
 #[tokio::main]
 async fn main() {
-    let account_balance = get_account_balance().await.unwrap();
-    let gbp = account_balance
-        .get("ZGBP")
-        .unwrap_or(&Decimal::ZERO)
-        .to_string()
-        .parse::<f64>()
-        .unwrap();
-    let sol = account_balance
-        .get("SOL")
-        .unwrap_or(&Decimal::ZERO)
-        .to_string()
-        .parse::<f64>()
-        .unwrap();
-    println!("gbp = {}, sol = {}", gbp, sol);
-
+    // let gbp = account_balance
+    //     .get("ZGBP")
+    //     .unwrap_or(&Decimal::ZERO)
+    //     .to_string()
+    //     .parse::<f64>()
+    //     .unwrap();
+    // let sol = account_balance
+    //     .get("SOL")
+    //     .unwrap_or(&Decimal::ZERO)
+    //     .to_string()
+    //     .parse::<f64>()
+    //     .unwrap();
+    // println!("gbp = {}, sol = {}", gbp, sol);
 
     let pair = "SOLGBP".to_string();
+    let book_df = get_book_df(pair, Some(30.)).await;
+    println!("book = {:?}", book_df);
+
     let order_type = "limit".to_string();
     let buy_type = "buy".to_string();
     let sell_type = "sell".to_string();
 
-    add_limit_order(pair, gbp, buy_type).await;
-    add_limit_order(pair, sol, sell_type).await;
-    
+    //add_limit_order(pair, gbp, buy_type).await;
+    //add_limit_order(pair, sol, sell_type).await;
 
     //let server_time = get_server_time().await.unwrap();
     //println!("{}", server_time.unixtime);
